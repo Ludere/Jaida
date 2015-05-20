@@ -9,5 +9,7 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
-	
+	<gap:plugin name="org.apache.cordova.media" />
+	<gap:plugin name="org.apache.cordova.device" />
+	<gap:plugin name="com.phonegap.plugins.pushplugin" />
 </widget>
