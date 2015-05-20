@@ -32,6 +32,109 @@
 	<script type="text/javascript" src="PushNotification.js"></script>
         
         <script type="text/javascript">
+		
+		$State = {
+    isText: false,
+    wordTime: 750, // Time to display a word
+    wordAnim: 150, // Time to animate a word
+    randomInterval: 18000,
+    lastRandomIndex: -1,
+    randomTimer: null,
+    lastMouseUp: -1
+};
+
+// From Stack Overflow
+// http://stackoverflow.com/questions/1582534/calculating-text-width-with-jquery
+$.fn.textWidth = function(){
+  var html_org = $(this).html();
+  var html_calc = '<span>' + html_org + '</span>';
+  $(this).html(html_calc);
+  var width = $(this).find('span:first').width();
+  $(this).html(html_org);
+  return width;
+};
+
+
+
+
+
+var blinkTriangle = function()
+{
+    // Stop blinking if samaritan is in action
+    if ($State.isText)
+        return;
+    $State.triangle.fadeTo(500, 0).fadeTo(500, 1, blinkTriangle);
+}
+
+
+
+var executeSamaritan = function(phrase)
+{
+    if ($State.isText)
+        return;
+
+    $State.isText = true
+    var phraseArray = phrase.split(" ");
+    // First, finish() the blink animation and
+    // scale down the marker triangle
+    $State.triangle.finish().animate({
+        'font-size': '0em',
+        'opacity': '1'
+    }, {
+        'duration': $State.wordAnim,
+        // Once animation triangle scale down is complete...
+        'done': function() {
+            var timeStart = 0;
+            // Create timers for each word
+            phraseArray.forEach(function (word, i) {
+                var wordTime = $State.wordTime;
+                if (word.length > 8)
+                    wordTime *= (word.length / 8);
+                setTimeout(function(){
+                    // Set the text to black, and put in the word
+                    // so that the length can be measured
+                    $State.text.addClass('hidden').html(word);
+                    // Then animate the line with extra padding
+                    $State.line.animate({
+                        'width' : ($State.text.textWidth() + 18) + "px"
+                    }, {
+                        'duration': $State.wordAnim,
+                        // When line starts anmating, set text to white again
+                        'start': $State.text.removeClass('hidden')
+                    })
+                }, (timeStart + $State.wordAnim));
+                timeStart += wordTime;
+            });
+
+            // Set a final timer to hide text and show triangle
+            setTimeout(function(){
+                // Clear the text
+                $State.text.html("");
+                // Animate trinagle back in
+                $State.triangle.finish().animate({
+                    'font-size': '2em',
+                    'opacity': '1'
+                }, {
+                    'duration': $State.wordAnim,
+                    // Once complete, blink the triangle again and animate the line to original size
+                    'done': function(){
+                        $State.isText = false;
+                        
+
+                        blinkTriangle();
+                        $State.line.animate({
+                            'width' : "30px"
+                        }, {
+                            'duration': $State.wordAnim,
+                            'start': $State.text.removeClass('hidden')
+                        })
+                    }
+                });
+            },
+            timeStart + $State.wordTime);
+        }
+    });
+}
 		 var pushNotification;
 		 $.put = function(url, data, callback, type){
  
@@ -51,7 +154,16 @@
 }
 
 		  function onDeviceReady() {
-                alert('<li>deviceready event received</li>');
+		  
+		  // Cache the jquery things
+    $State.triangle = $('#triangle');
+    $State.text  = $('#main p');
+    $State.line = $('#main hr');
+    
+    // Start the triangle blinking
+    blinkTriangle();
+	
+                //alert('<li>deviceready event received</li>');
                 
 				document.addEventListener("backbutton", function(e)
 				{
@@ -124,6 +236,7 @@
 						}
 							
 						alert(e.payload.message);
+						executeSamaritan(e.payload.message);
                         //android only
 					//	alert('<li>MESSAGE -> MSGCNT: ' + e.payload.msgcnt + '</li>');
                        //
@@ -152,13 +265,15 @@
 			document.addEventListener('deviceready', onDeviceReady, true);
          
 		</script>
-        <div class="app">
-            <h1>Apache Cordova</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
-            </div>
+
+		 <div id="main">
+            <p>&nbsp;</p>
+            <hr />
         </div>
+        <div id="marker">
+            <span id="triangle">&#9650</span>
+        </div>
+		
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
     </body>
