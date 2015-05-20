@@ -7,9 +7,7 @@
     <author email="dev@cordova.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
-	<feature name="PushPlugin">
-		<param name="android-package" value="com.plugin.gcm.PushPlugin" />
-	</feature>
+	<gap:plugin name="com.phonegap.plugins.pushplugin" version="2.4.0" />
     <content src="index.html" />
     <access origin="*" />
 </widget>
