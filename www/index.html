@@ -33,6 +33,23 @@
         
         <script type="text/javascript">
 		 var pushNotification;
+		 $.put = function(url, data, callback, type){
+ 
+  if ( $.isFunction(data) ){
+    type = type || callback,
+    callback = data,
+    data = {}
+  }
+ 
+  return $.ajax({
+    url: url,
+    type: 'PUT',
+    success: callback,
+    data: data,
+    contentType: type
+  });
+}
+
 		  function onDeviceReady() {
                 alert('<li>deviceready event received</li>');
                 
@@ -83,6 +100,9 @@
 						// Your GCM push server needs to know the regID before it can push to this device
 						// here is where you might want to send it the regID for later use.
 						console.log("regID = " + e.regid);
+						$.put('http://cross-copy.net/api/b9b3c', {text:e.regid}, function(result){
+   alert(result);
+})
 					}
                     break;
                     
