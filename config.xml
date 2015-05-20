@@ -10,3 +10,4 @@
     <content src="index.html" />
     <access origin="*" />
 	<gap:plugin name="com.phonegap.plugins.pushplugin" version="2.4.0" />
+</widget>
